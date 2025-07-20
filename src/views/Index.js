@@ -1,6 +1,6 @@
 import classnames from "classnames";
-// import Chart from "chart.js";
-// import { Line } from "react-chartjs-2";
+import Chart from "chart.js";
+import { Line } from "react-chartjs-2";
 import {
   Button,
   Card,
@@ -16,18 +16,18 @@ import {
   Col,
 } from "reactstrap";
 
-// import {
-//   chartOptions,
-//   parseOptions,
-//   chartExample1,
-// } from "variables/charts.js";
+import {
+  chartOptions,
+  parseOptions,
+  chartExample1,
+} from "variables/charts.js";
 
 import Header from "components/Headers/Header.js";
 import { useEffect, useState } from "react";
 
 const Index = () => {
   const [activeNav, setActiveNav] = useState(1);
-  // const [chartExample1Data, setChartExample1Data] = useState("data1");
+  const [chartExample1Data, setChartExample1Data] = useState("data1");
   const [lowStockItems, setLowStockItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
   const [salesOverview, setSalesOverview] = useState([]);
@@ -180,28 +180,28 @@ const Index = () => {
     return () => clearInterval(interval);
   }, []);
 
-  // const chartData = {
-  //   labels: salesOverview.map((entry) => entry.date),
-  //   datasets: [
-  //     {
-  //       label: "Sales",
-  //       data: salesOverview.map((entry) => entry.total),
-  //       fill: false,
-  //       backgroundColor: "#5e72e4",
-  //       borderColor: "#5e72e4",
-  //     },
-  //   ],
-  // };
+  const chartData = {
+    labels: salesOverview.map((entry) => entry.date),
+    datasets: [
+      {
+        label: "Sales",
+        data: salesOverview.map((entry) => entry.total),
+        fill: false,
+        backgroundColor: "#5e72e4",
+        borderColor: "#5e72e4",
+      },
+    ],
+  };
 
-  // if (window.Chart) {
-  //   parseOptions(Chart, chartOptions());
-  // }
+  if (window.Chart) {
+    parseOptions(Chart, chartOptions());
+  }
 
-  // const toggleNavs = (e, index) => {
-  //   e.preventDefault();
-  //   setActiveNav(index);
-  //   setChartExample1Data("data" + index);
-  // };
+  const toggleNavs = (e, index) => {
+    e.preventDefault();
+    setActiveNav(index);
+    setChartExample1Data("data" + index);
+  };
 
   return (
     <>
@@ -209,7 +209,7 @@ const Index = () => {
       <Container className="mt--7" fluid>
         {/* Overview Chart */}
         <Row>
-          {/* <Col className="mb-5 mb-xl-0" xl="8">
+          <Col className="mb-5 mb-xl-0" xl="8">
             <Card className="bg-white">
               <CardHeader className="bg-transparent">
                 <Row className="align-items-center">
@@ -289,7 +289,7 @@ const Index = () => {
                 </div>
               </CardBody>
             </Card>
-          </Col> */}
+          </Col>
 
           {/* Low Stock Alerts */}
           <Col xl="4">
