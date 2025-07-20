@@ -1,6 +1,6 @@
 import classnames from "classnames";
-import Chart from "chart.js";
-import { Line } from "react-chartjs-2";
+// import Chart from "chart.js";
+// import { Line } from "react-chartjs-2";
 import {
   Button,
   Card,
@@ -16,18 +16,18 @@ import {
   Col,
 } from "reactstrap";
 
-import {
-  chartOptions,
-  parseOptions,
-  chartExample1,
-} from "variables/charts.js";
+// import {
+//   chartOptions,
+//   parseOptions,
+//   chartExample1,
+// } from "variables/charts.js";
 
 import Header from "components/Headers/Header.js";
 import { useEffect, useState } from "react";
 
 const Index = () => {
   const [activeNav, setActiveNav] = useState(1);
-  const [chartExample1Data, setChartExample1Data] = useState("data1");
+  // const [chartExample1Data, setChartExample1Data] = useState("data1");
   const [lowStockItems, setLowStockItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
   const [salesOverview, setSalesOverview] = useState([]);
