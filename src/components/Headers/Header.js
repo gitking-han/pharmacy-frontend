@@ -79,57 +79,58 @@ const Header = () => {
   ).size;
 
   // Calculate profit: sale - cost
- const dailyProfit = todaysSales.reduce((profit, sale) => {
-  if (!Array.isArray(sale.items)) return profit;
+  const dailyProfit = todaysSales.reduce((profit, sale) => {
+    if (!Array.isArray(sale.items)) return profit;
 
-  for (const item of sale.items) {
-    // ✅ Get medicine ID from either object or direct ID
-    const itemMedicineId =
-      typeof item.medicine === "object"
-        ? item.medicine._id || item.medicine.$oid
-        : item.medicine;
+    for (const item of sale.items) {
+      // ✅ Get medicine ID from either object or direct ID
+      const itemMedicineId =
+        typeof item.medicine === "object"
+          ? item.medicine?._id || item.medicine?.$oid
+          : item.medicine;
 
-    const medicine = medicines.find((m) => m._id === itemMedicineId);
 
-    if (!medicine) {
-      console.warn("❌ Medicine not found for item:", item);
-      continue;
+      const medicine = medicines.find((m) => m._id === itemMedicineId);
+
+      if (!medicine) {
+        console.warn("❌ Medicine not found for item:", item);
+        continue;
+      }
+
+      const barcode = medicine.barcode?.trim();
+      console.log("✅ Found medicine:", medicine.brandName, "| Barcode:", barcode);
+
+      // ✅ Find matching stock entries by barcode (before or on sale date)
+      const matchingStockEntries = stockEntries
+        .filter((entry) =>
+          entry.barcode?.trim() === barcode &&
+          new Date(entry.createdAt) <= new Date(sale.date)
+        )
+        .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+      const latestStock = matchingStockEntries[0];
+
+      if (!latestStock) {
+        console.warn("❌ No matching stock entry found for barcode:", barcode);
+        continue;
+      }
+
+      const costPrice = latestStock.costPrice ?? 0;
+      const salePrice = item.price ?? medicine.salePrice ?? 0;
+
+      const itemProfit = (salePrice - costPrice) * item.quantity;
+
+      // console.log(
+      //   `💰 Profit for ${medicine.brandName}: (${salePrice} - ${costPrice}) * ${item.quantity} = ${itemProfit}`
+      // );
+
+      profit += itemProfit;
     }
 
-    const barcode = medicine.barcode?.trim();
-    console.log("✅ Found medicine:", medicine.brandName, "| Barcode:", barcode);
+    return profit;
+  }, 0);
 
-    // ✅ Find matching stock entries by barcode (before or on sale date)
-    const matchingStockEntries = stockEntries
-      .filter((entry) =>
-        entry.barcode?.trim() === barcode &&
-        new Date(entry.createdAt) <= new Date(sale.date)
-      )
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    const latestStock = matchingStockEntries[0];
-
-    if (!latestStock) {
-      console.warn("❌ No matching stock entry found for barcode:", barcode);
-      continue;
-    }
-
-    const costPrice = latestStock.costPrice ?? 0;
-    const salePrice = item.price ?? medicine.salePrice ?? 0;
-
-    const itemProfit = (salePrice - costPrice) * item.quantity;
-
-    // console.log(
-    //   `💰 Profit for ${medicine.brandName}: (${salePrice} - ${costPrice}) * ${item.quantity} = ${itemProfit}`
-    // );
-
-    profit += itemProfit;
-  }
-
-  return profit;
-}, 0);
-
-// console.log("🔥 Final Daily Profit:", dailyProfit);
+  // console.log("🔥 Final Daily Profit:", dailyProfit);
 
 
   return (

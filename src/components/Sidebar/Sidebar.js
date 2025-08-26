@@ -1,18 +1,4 @@
-/*!
 
-=========================================================
-* Argon Dashboard React - v1.2.4
-=========================================================
-
-* Product Page: https://www.creative-tim.com/product/argon-dashboard-react
-* Copyright 2024 Creative Tim
-* Licensed under MIT (https://github.com/creativetimofficial/argon-dashboard-react/blob/master/LICENSE.md)
-
-* Coded by Creative Tim
-
-=========================================================
-
-*/
 
 import { useState } from "react";
 import { NavLink as NavLinkRRD, Link, useLocation } from "react-router-dom";
@@ -22,10 +8,6 @@ import PharMAn from "../../assets/img/brand/PharMAn.jpg";
 // reactstrap components (cleaned for Bootstrap 5)
 import {
   Collapse,
-  DropdownMenu,
-  DropdownItem,
-  UncontrolledDropdown,
-  DropdownToggle,
   Form,
   Input,
   InputGroupText,
@@ -66,8 +48,9 @@ const Sidebar = (props) => {
       };
 
       return (
-        <NavItem key={key}>
+        <NavItem key={key} style={{marginTop: "10px"}}>
           <NavLink
+            
             to={shouldDisable ? "#" : prop.layout + prop.path}
             tag={NavLinkRRD}
             onClick={handleNavClick}

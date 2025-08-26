@@ -7,7 +7,6 @@ import {
   CardBody,
   FormGroup,
   Form,
-  InputGroupAddon,
   InputGroupText,
   Input,
   InputGroup,
@@ -22,11 +21,11 @@ const Login = () => {
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const navigate = useNavigate();
   const { clearMedicines } = useContext(medicineContext);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch(`${backendUrl}/api/auth/login`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -145,7 +144,7 @@ const Login = () => {
           <Col xs="6">
             <a
               className="text-light"
-              href="#"
+              
               onClick={(e) => e.preventDefault()}
             >
               <small>Forgot password?</small>
@@ -154,7 +153,6 @@ const Login = () => {
           <Col className="text-right" xs="6">
             <a
               className="text-light"
-              href="#"
               onClick={(e) => {
                 e.preventDefault();
                 navigate("/auth/register");

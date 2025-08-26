@@ -1,4 +1,4 @@
-import { createContext, useState, useCallback } from "react";
+import { createContext, useState, useCallback, useEffect } from "react";
 
 const StockContext = createContext();
 
@@ -6,13 +6,35 @@ const StockProvider = ({ children }) => {
   const [stockEntries, setStockEntries] = useState([]);
   const [loading, setLoading] = useState(false);
 
-  // ✅ Memoized auth headers
+  // ✅ Headers with auth
   const getAuthHeaders = useCallback(() => ({
     "Content-Type": "application/json",
     "auth-token": localStorage.getItem("token"),
   }), []);
 
-  // ✅ Add Stock Entry
+  // ✅ Fetch all stock entries
+  const fetchStockEntries = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch("/api/stock-entry/all", {
+        headers: getAuthHeaders(),
+      });
+
+      const data = await res.json();
+
+      if (data.success) {
+        setStockEntries(data.entries || []);
+      } else {
+        console.error("Fetch error:", data.message || data.error);
+      }
+    } catch (error) {
+      console.error("Network error while fetching stock:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Add stock entry
   const addStockEntry = async (entryData) => {
     setLoading(true);
     try {
@@ -39,53 +61,33 @@ const StockProvider = ({ children }) => {
     }
   };
 
-  // ✅ Fetch all Stock Entries
-  const fetchStockEntries = async () => {
-    setLoading(true);
-    try {
-      const res = await fetch("/api/stock-entry/all", {
-        headers: getAuthHeaders(),
-      });
-
-      const data = await res.json();
-
-      if (data.success) {
-        setStockEntries(data.entries || []);
-      } else {
-        console.error("Fetch error:", data.message || data.error);
-      }
-    } catch (error) {
-      console.error("Network error while fetching stock:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // ✅ Delete Stock Entry
+  // ✅ Delete stock entry
   const deleteStockEntry = async (id) => {
-    
     try {
-      const res = await fetch(`http://localhost:5000/api/stock-entry/delete/${id}`, {
+      const res = await fetch(`/api/stock-entry/delete/${id}`, {
         method: "DELETE",
         headers: {
           "auth-token": localStorage.getItem("token"),
         },
       });
+
       const data = await res.json();
+
       if (data.success) {
         console.log("Stock entry deleted");
-        fetchStockEntries();
+        fetchStockEntries(); // refresh
       } else {
         console.log(data.error || "Failed to delete");
       }
     } catch (err) {
-      console.log("Server error");
+      console.log("Server error during delete");
     }
   };
 
+  // ✅ Update stock entry
   const updateStockEntry = async (id, updatedData) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/stock-entry/update/${id}`, {
+      const res = await fetch(`/api/stock-entry/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -93,17 +95,24 @@ const StockProvider = ({ children }) => {
         },
         body: JSON.stringify(updatedData),
       });
+
       const data = await res.json();
+
       if (data.success) {
         console.log("Stock entry updated");
-        fetchStockEntries();
+        fetchStockEntries(); // refresh
       } else {
         console.log(data.error || "Update failed");
       }
     } catch (err) {
-      console.log("Server error");
+      console.log("Server error during update");
     }
   };
+
+  // ✅ Auto-fetch stock entries on component mount
+  useEffect(() => {
+    fetchStockEntries();
+  }, []);
 
   return (
     <StockContext.Provider

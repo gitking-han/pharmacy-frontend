@@ -4,7 +4,7 @@ import SaleContext from "./saleContext";
 const SaleState = ({ children }) => {
   const [cartItems, setCartItems] = useState([]); // { barcode, name, price, quantity, total }
   const [grandTotal, setGrandTotal] = useState(0);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   const calculateGrandTotal = (items) =>
     items.reduce((acc, item) => acc + item.total, 0);
 
@@ -49,7 +49,7 @@ const SaleState = ({ children }) => {
   // ✅ Submit sale — accepts optional customer name
   const submitSale = async (customerName = "") => {
     try {
-      const response = await fetch("http://localhost:5000/api/sale/sell", {
+      const response = await fetch(`${backendUrl}/api/sale/sell`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,7 +104,7 @@ const SaleState = ({ children }) => {
     // ✅ Get all previous sales
   const fetchAllSales = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/sale/all", {
+      const response = await fetch(`${backendUrl}/api/sale/all`, {
         headers: {
           "Content-Type": "application/json",
           "auth-token": localStorage.getItem("token"),
@@ -121,7 +121,7 @@ const SaleState = ({ children }) => {
   // ✅ Get a single sale by ID
   const getSaleById = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/sale/${id}`, {
+      const response = await fetch(`${backendUrl}/api/sale/${id}`, {
         headers: {
           "Content-Type": "application/json",
           "auth-token": localStorage.getItem("token"),
@@ -138,7 +138,7 @@ const SaleState = ({ children }) => {
   // ✅ Update a sale (e.g. update customer name)
   const updateSale = async (id, updatedFields) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/sale/${id}`, {
+      const response = await fetch(`${backendUrl}/api/sale/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -156,7 +156,7 @@ const SaleState = ({ children }) => {
   // ✅ Delete a sale
   const deleteSale = async (id) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/sale/${id}`, {
+      const response = await fetch(`${backendUrl}/api/sale/${id}`, {
         method: "DELETE",
         headers: {
           "auth-token": localStorage.getItem("token"),

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter, Route, Routes, Navigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 
 // Styles
 import "assets/plugins/nucleo/css/nucleo.css";
@@ -16,8 +16,9 @@ import NotFound from "views/examples/NotFound";
 import MedicineState from "context/MedicineState";
 import { StockProvider } from "./context/stockContext";
 import { SupplierProvider } from "./context/supplierContext";
+import { ReturnProvider } from "context/ReturnContext";
 import SaleState from "./context/SaleState";
-import { GoogleOAuthProvider } from '@react-oauth/google';
+import { ProfileProvider } from "./context/ProfileContext";
 // Routes config
 import routes from "routes";
 
@@ -48,6 +49,8 @@ function AppRouter() {
       <StockProvider>
         <SupplierProvider>
           <SaleState>
+            <ReturnProvider>
+            <ProfileProvider>
             {alert && (
               <div
                 className={`p-4 text-white text-center ${alert.type === "success" ? "bg-green-500" : "bg-red-500"
@@ -70,7 +73,8 @@ function AppRouter() {
               </Routes>
 
             </BrowserRouter>
-
+            </ProfileProvider>
+            </ReturnProvider>
           </SaleState>
         </SupplierProvider>
       </StockProvider>

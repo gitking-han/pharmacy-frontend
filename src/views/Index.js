@@ -1,8 +1,17 @@
 import classnames from "classnames";
-import Chart from "chart.js";
+import {
+  Chart as ChartJS,
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+  Title,
+} from "chart.js";
+
 import { Line } from "react-chartjs-2";
 import {
-  Button,
   Card,
   CardHeader,
   CardBody,
@@ -16,14 +25,19 @@ import {
   Col,
 } from "reactstrap";
 
-import {
-  chartOptions,
-  parseOptions,
-  chartExample1,
-} from "variables/charts.js";
-
 import Header from "components/Headers/Header.js";
 import { useEffect, useState } from "react";
+
+// Register necessary components for chart.js v4
+ChartJS.register(
+  LineElement,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  Tooltip,
+  Legend,
+  Title
+);
 
 const Index = () => {
   const [activeNav, setActiveNav] = useState(1);
@@ -31,20 +45,18 @@ const Index = () => {
   const [lowStockItems, setLowStockItems] = useState([]);
   const [topItems, setTopItems] = useState([]);
   const [salesOverview, setSalesOverview] = useState([]);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   const fetchLowStockAndExpiryAlerts = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      // Fetch all medicines
-      const medRes = await fetch("http://localhost:5000/api/medicine/all", {
+      const medRes = await fetch(`${backendUrl}/api/medicine/all`, {
         headers: { "auth-token": token },
       });
       const medData = await medRes.json();
       const allMeds = medData.success ? medData.medicines : [];
 
-      // Fetch all stock entries
-      const stockRes = await fetch("http://localhost:5000/api/stock-entry/all", {
+      const stockRes = await fetch(`${backendUrl}/api/stock-entry/all`, {
         headers: { "auth-token": token },
       });
       const stockData = await stockRes.json();
@@ -87,19 +99,17 @@ const Index = () => {
     }
   };
 
-
-
   const fetchTopSellingItems = async () => {
     try {
       const token = localStorage.getItem("token");
 
-      const medRes = await fetch("http://localhost:5000/api/medicine/all", {
+      const medRes = await fetch(`${backendUrl}/api/medicine/all`, {
         headers: { "auth-token": token },
       });
       const medData = await medRes.json();
       const medicines = medData.success ? medData.medicines : [];
 
-      const saleRes = await fetch("http://localhost:5000/api/sale/all", {
+      const saleRes = await fetch(`${backendUrl}/api/sale/all`, {
         headers: { "auth-token": token },
       });
       const saleData = await saleRes.json();
@@ -135,10 +145,11 @@ const Index = () => {
       console.error("Error fetching top selling items:", err);
     }
   };
+
   const fetchSalesOverview = async () => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/api/sale/all", {
+      const res = await fetch(`${backendUrl}/api/sale/all`, {
         headers: { "auth-token": token },
       });
       const data = await res.json();
@@ -148,11 +159,10 @@ const Index = () => {
       const grouped = {};
 
       data.sales.forEach((sale) => {
-        const date = new Date(sale.date).toLocaleDateString(); // e.g., "7/15/2025"
+        const date = new Date(sale.date).toLocaleDateString();
         if (!grouped[date]) {
           grouped[date] = 0;
         }
-
         grouped[date] += sale.grandTotal || 0;
       });
 
@@ -175,7 +185,7 @@ const Index = () => {
       fetchLowStockAndExpiryAlerts();
       fetchTopSellingItems();
       fetchSalesOverview();
-    }, 10000); // every 10 seconds
+    }, 10000);
 
     return () => clearInterval(interval);
   }, []);
@@ -193,10 +203,6 @@ const Index = () => {
     ],
   };
 
-  if (window.Chart) {
-    parseOptions(Chart, chartOptions());
-  }
-
   const toggleNavs = (e, index) => {
     e.preventDefault();
     setActiveNav(index);
@@ -207,7 +213,6 @@ const Index = () => {
     <>
       <Header />
       <Container className="mt--7" fluid>
-        {/* Overview Chart */}
         <Row>
           <Col className="mb-5 mb-xl-0" xl="8">
             <Card className="bg-white">
@@ -283,15 +288,11 @@ const Index = () => {
                   ) : (
                     <p className="text-muted">No sales data available</p>
                   )}
-
-
-
                 </div>
               </CardBody>
             </Card>
           </Col>
 
-          {/* Low Stock Alerts */}
           <Col xl="4">
             <Card className="shadow">
               <CardHeader className="bg-transparent">
@@ -323,27 +324,21 @@ const Index = () => {
                             <td>{item.medicine?.brandName || "Unknown"}</td>
                             <td>{item.totalQuantity}</td>
                             <td>
-                              <span
-                                className={`text-${alertType.includes("Low Stock") ? "danger" : "warning"
-                                  }`}
-                              >
+                              <span className={`text-${alertType.includes("Low Stock") ? "danger" : "warning"}`}>
                                 {alertType}
                               </span>
                             </td>
                           </tr>
                         );
                       })}
-
                     </tbody>
                   </Table>
                 )}
               </CardBody>
-
             </Card>
           </Col>
         </Row>
 
-        {/* Top Selling Items */}
         <Row className="mt-5">
           <Col xl="8">
             <Card className="shadow">
@@ -374,9 +369,7 @@ const Index = () => {
                         <td>{item.quantity}</td>
                         <td>
                           <div className="d-flex align-items-center">
-                            <span className="mr-2">
-                              {Math.min(item.quantity, 100)}%
-                            </span>
+                            <span className="mr-2">{Math.min(item.quantity, 100)}%</span>
                             <Progress
                               max="100"
                               value={Math.min(item.quantity, 100)}

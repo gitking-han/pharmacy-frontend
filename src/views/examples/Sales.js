@@ -28,10 +28,10 @@ const Sales = () => {
   const [deleteModal, setDeleteModal] = useState(false);
   const slipRef = useRef(null);
   const [printData, setPrintData] = useState(null);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   const fetchSales = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/sale/all", {
+      const res = await fetch(`${backendUrl}/api/sale/all`, {
         headers: {
           "auth-token": localStorage.getItem("token"),
         },
@@ -58,7 +58,7 @@ const Sales = () => {
 
   const handleDeleteSale = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/sale/${selectedSale._id}`, {
+      const res = await fetch(`${backendUrl}/api/sale/${selectedSale._id}`, {
         method: "DELETE",
         headers: {
           "auth-token": localStorage.getItem("token"),
@@ -236,7 +236,9 @@ const Sales = () => {
 
       {/* 🗑️ Custom Delete Confirmation Modal */}
       <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)}>
-        <ModalHeader toggle={() => setDeleteModal(false)}>
+        <ModalHeader toggle={() => setDeleteModal(false)} className="d-flex justify-content-between align-items-center fs-1"  close={<button className="close" onClick={() => setDeleteModal(false)} style={{ fontSize: "2rem" }}>
+          ×
+        </button>}>
           Confirm Deletion
         </ModalHeader>
         <ModalBody>

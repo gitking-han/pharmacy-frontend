@@ -6,7 +6,7 @@ const MedicineState = (props) => {
   const [medicines, setMedicines] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [userName, setUserName] = useState("User");
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   // ✅ Decode JWT
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -29,7 +29,7 @@ const MedicineState = (props) => {
   // ✅ Fetch all medicines
   const fetchMedicines = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/medicine/all", {
+      const res = await fetch(`${backendUrl}/api/medicine/all`, {
         headers: getAuthHeaders(),
       });
       const data = await res.json();
@@ -53,7 +53,7 @@ const MedicineState = (props) => {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/api/medicine/add", {
+      const res = await fetch(`${backendUrl}/api/medicine/add`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify(payload),
@@ -74,7 +74,7 @@ const MedicineState = (props) => {
   // ✅ Delete medicine
   const deleteMedicine = async (id) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/medicine/delete/${id}`, {
+      const res = await fetch(`${backendUrl}/api/medicine/delete/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
@@ -96,7 +96,7 @@ const MedicineState = (props) => {
     };
 
     try {
-      const res = await fetch(`http://localhost:5000/api/medicine/update/${id}`, {
+      const res = await fetch(`${backendUrl}/api/medicine/update/${id}`, {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify(payload),
@@ -113,7 +113,7 @@ const MedicineState = (props) => {
   // ✅ Get by barcode
   const getMedicineByBarcode = async (barcode) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/medicine/barcode/${barcode}`, {
+      const res = await fetch(`${backendUrl}/api/medicine/barcode/${barcode}`, {
         headers: getAuthHeaders(),
       });
       const data = await res.json();

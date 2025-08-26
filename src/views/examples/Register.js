@@ -23,12 +23,12 @@ const Register = () => {
   });
 
   const navigate = useNavigate();
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
   const handleSubmit = async (e) => {
     e.preventDefault();
     const { name, email, password } = credentials;
 
-    const response = await fetch("http://localhost:5000/api/auth/createuser", {
+    const response = await fetch(`${backendUrl}/api/auth/createuser`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

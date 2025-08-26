@@ -5,7 +5,8 @@ import Register from "views/examples/Register.js";
 import Login from "views/examples/Login.js";
 import Sales from "views/examples/Sales.js";
 import Medicines from "views/examples/Medicines.js";
-import StockManagement from "views/examples/StockManagement.js"; // ✅ NEW
+import StockManagement from "views/examples/StockManagement.js";
+import ReturnMedicine from "views/examples/ReturnMedicine.js"; // ✅ NEW
 
 var routes = (alert, showAlert) => [
   {
@@ -30,17 +31,17 @@ var routes = (alert, showAlert) => [
     layout: "/admin",
   },
   {
-    path: "/StockManagement", // ✅ NEW
+    path: "/StockManagement",
     name: "Stock",
-    icon: "ni ni-box-2 text-green", // You can customize the icon
+    icon: "ni ni-box-2 text-green",
     component: <StockManagement />,
     layout: "/admin",
   },
   {
-    path: "/profile",
-    name: "Profile",
-    icon: "ni ni-single-02 text-yellow",
-    component: <Profile />,
+    path: "/ReturnMedicine", // ✅ NEW
+    name: "Returns",
+    icon: "ni ni-curved-next text-info",
+    component: <ReturnMedicine />,
     layout: "/admin",
   },
   {
@@ -48,6 +49,13 @@ var routes = (alert, showAlert) => [
     name: "Sales",
     icon: "ni ni-bullet-list-67 text-red",
     component: <Sales />,
+    layout: "/admin",
+  },
+  {
+    path: "/profile",
+    name: "Profile",
+    icon: "ni ni-single-02 text-yellow",
+    component: <Profile />,
     layout: "/admin",
   },
   {
@@ -65,4 +73,5 @@ var routes = (alert, showAlert) => [
     layout: "/auth",
   },
 ];
+
 export default routes;

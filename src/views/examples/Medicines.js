@@ -37,7 +37,7 @@ const Medicines = () => {
   const barcodeRef = useRef(null);
   const [selectedMedicinesMap, setSelectedMedicinesMap] = useState({});
   const [selectedBulkSaleItems, setSelectedBulkSaleItems] = useState([]);
-
+  const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
   const toggleMedicineSelect = (id) => {
     setSelectedMedicinesMap((prev) => ({
@@ -209,7 +209,7 @@ const Medicines = () => {
           quantity: m.quantity,
         }));
 
-        const res = await fetch("http://localhost:5000/api/sale/sell", {
+        const res = await fetch(`${backendUrl}/api/sale/sell`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -236,7 +236,7 @@ const Medicines = () => {
           return;
         }
 
-        const res = await fetch("http://localhost:5000/api/sale/quick-sale", {
+        const res = await fetch(`${backendUrl}/api/sale/quick-sale`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -270,6 +270,26 @@ const Medicines = () => {
     m.genericName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     m.manufacturer?.toLowerCase().includes(searchQuery.toLowerCase())
   );
+  const handleBarcodeEnter = async (e) => {
+    if (e.key === "Enter" && searchQuery.trim()) {
+      const barcode = searchQuery.trim();
+
+      // Try to find medicine with exact barcode
+      const matched = medicines.find((m) => m.barcode === barcode);
+
+      if (matched) {
+        setSelectedMedicine(matched);
+        setCustomerName("");
+        setSaleQuantity(1);
+        setSaleModal(true); // ✅ Open sale modal
+      } else {
+        toast.error("Medicine with this barcode not found.");
+      }
+
+      // Clear search field
+      setSearchQuery("");
+    }
+  };
 
   return (
     <>
@@ -287,9 +307,11 @@ const Medicines = () => {
                     placeholder="Search..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyDown={handleBarcodeEnter} // ✅ Add this line
                     className="form-control"
                     style={{ maxWidth: "250px" }}
                   />
+
                   {Object.keys(selectedMedicinesMap).some((id) => selectedMedicinesMap[id]) ? (
                     <Button
                       className="w-100"
@@ -400,7 +422,9 @@ const Medicines = () => {
 
       {/* ➕ Add/Edit Modal */}
       <Modal isOpen={addEditModal} toggle={toggleAddEditModal}>
-        <ModalHeader toggle={toggleAddEditModal}>
+        <ModalHeader toggle={toggleAddEditModal} className="d-flex justify-content-between align-items-center fs-1"  close={<button className="close" onClick={toggleAddEditModal} style={{ fontSize: "2rem" }}>
+          ×
+        </button>}>
           {selectedMedicine ? "Update Medicine" : "Add Medicine"}
         </ModalHeader>
         <ModalBody>
@@ -426,15 +450,27 @@ const Medicines = () => {
               />
             </FormGroup>
           ))}
-          <FormGroup>
-            <Label>Unit</Label>
-            <Input type="select" name="unit" value={form.unit} onChange={handleChange}>
+          <FormGroup className="mb-3">
+            <Label for="unit" className="form-label" style={{ fontWeight: '500', color: 'gray', fontSize: '18px' }}>
+              Unit
+            </Label>
+            <Input
+              style={{ width: "100%", borderRadius: "0.375rem", border: "1px solid lightgray", color: "gray", padding: "10px" }}
+              type="select"
+              name="unit"
+              id="unit"
+              value={form.unit}
+              onChange={handleChange}
+              className="form-select"
+
+            >
               <option value="tablet">Tablet</option>
               <option value="strip">Strip</option>
               <option value="bottle">Bottle</option>
               <option value="syrup">Syrup</option>
             </Input>
           </FormGroup>
+
         </ModalBody>
         <ModalFooter>
           <Button
@@ -450,7 +486,9 @@ const Medicines = () => {
 
       {/* 🗑 Confirm Delete */}
       <Modal isOpen={deleteModal} toggle={() => setDeleteModal(false)}>
-        <ModalHeader toggle={() => setDeleteModal(false)}>Confirm Delete</ModalHeader>
+        <ModalHeader toggle={() => setDeleteModal(false)} className="d-flex justify-content-between align-items-center fs-1"  close={<button className="close" onClick={() => setDeleteModal(false)} style={{ fontSize: "2rem" }}>
+          ×
+        </button>}>Confirm Delete</ModalHeader>
         <ModalBody>
           Are you sure you want to delete <strong>{medicineToDelete?.brandName}</strong>?
         </ModalBody>
@@ -461,16 +499,20 @@ const Medicines = () => {
       </Modal>
 
       {/* 💊 Sale Modal */}
-      <Modal isOpen={saleModal} toggle={() => setSaleModal(false)}>
-        <ModalHeader toggle={() => setSaleModal(false)}>Confirm Sale</ModalHeader>
-        <ModalBody>
+      <Modal isOpen={saleModal} toggle={() => setSaleModal(false)} size="lg">
+        <ModalHeader toggle={() => setSaleModal(false)} className="d-flex justify-content-between align-items-center fs-1"  close={<button className="close" onClick={() => setSaleModal(false)} style={{ fontSize: "2rem" }}>
+          ×
+        </button>}>Confirm Sale</ModalHeader>
+        <ModalBody style={{ maxHeight: "70vh", overflowY: "auto" }}>
           {selectedBulkSaleItems.length > 0 ? (
             <>
               <div className="bulk-sale-items">
                 {selectedBulkSaleItems.map((med, idx) => (
                   <Row key={med._id} className="border-bottom py-2 align-items-center">
                     <Col md="6" xs="12" className="mb-2 mb-md-0">
-                      <h6 className="mb-1">{med.brandName} <small className="text-muted">({med.genericName})</small></h6>
+                      <h6 className="mb-1">
+                        {med.brandName} <small className="text-muted">({med.genericName})</small>
+                      </h6>
                       <small className="text-muted d-block">Stock: {med.stock}</small>
                       <small className="text-muted d-block">Barcode: {med.barcode}</small>
                     </Col>
@@ -505,36 +547,47 @@ const Medicines = () => {
                 />
               </FormGroup>
             </>
-
           ) : selectedMedicine && (
             <>
-              <p><strong>Brand Name:</strong> {selectedMedicine.brandName}</p>
-              <p><strong>Generic Name:</strong> {selectedMedicine.genericName}</p>
-              <p><strong>Strength:</strong> {selectedMedicine.strength} {selectedMedicine.unit}</p>
-              <p><strong>Manufacturer:</strong> {selectedMedicine.manufacturer}</p>
-              <p><strong>Stock Available:</strong> {selectedMedicine.stock}</p>
-              <p><strong>Barcode:</strong> {selectedMedicine.barcode}</p>
-              <p><strong>Price:</strong> Rs. {selectedMedicine.salePrice?.toFixed(2)}</p>
-              <p><strong>Added:</strong> {new Date(selectedMedicine.createdAt).toLocaleDateString()}</p>
+              <Row>
+                <Col md="6">
+                  <p><strong>Brand Name:</strong> {selectedMedicine.brandName}</p>
+                  <p><strong>Generic Name:</strong> {selectedMedicine.genericName}</p>
+                  <p><strong>Strength:</strong> {selectedMedicine.strength} {selectedMedicine.unit}</p>
+                  <p><strong>Manufacturer:</strong> {selectedMedicine.manufacturer}</p>
+                </Col>
+                <Col md="6">
+                  <p><strong>Stock:</strong> {selectedMedicine.stock}</p>
+                  <p><strong>Barcode:</strong> {selectedMedicine.barcode}</p>
+                  <p><strong>Price:</strong> Rs. {selectedMedicine.salePrice?.toFixed(2)}</p>
+                  <p><strong>Added:</strong> {new Date(selectedMedicine.createdAt).toLocaleDateString()}</p>
+                </Col>
+              </Row>
 
-              <FormGroup>
-                <Label>Customer Name</Label>
-                <Input
-                  value={customerName}
-                  onChange={(e) => setCustomerName(e.target.value)}
-                  placeholder="Optional"
-                />
-              </FormGroup>
-              <FormGroup>
-                <Label>Quantity</Label>
-                <Input
-                  type="number"
-                  value={saleQuantity}
-                  onChange={(e) => setSaleQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                  min="1"
-                  max={selectedMedicine.stock}
-                />
-              </FormGroup>
+              <Row>
+                <Col md="6">
+                  <FormGroup>
+                    <Label>Customer Name</Label>
+                    <Input
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      placeholder="Optional"
+                    />
+                  </FormGroup>
+                </Col>
+                <Col md="6">
+                  <FormGroup>
+                    <Label>Quantity</Label>
+                    <Input
+                      type="number"
+                      value={saleQuantity}
+                      onChange={(e) => setSaleQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                      min="1"
+                      max={selectedMedicine.stock}
+                    />
+                  </FormGroup>
+                </Col>
+              </Row>
             </>
           )}
         </ModalBody>
@@ -553,8 +606,8 @@ const Medicines = () => {
           </Button>
           <Button onClick={() => setSaleModal(false)}>Cancel</Button>
         </ModalFooter>
-
       </Modal>
+
     </>
   );
 };
