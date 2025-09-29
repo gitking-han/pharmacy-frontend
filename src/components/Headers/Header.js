@@ -6,51 +6,51 @@ const Header = () => {
   const [medicines, setMedicines] = useState([]);
   const [stockEntries, setStockEntries] = useState([]);
 
+  const API_BASE = process.env.REACT_APP_BACKEND_URL;
+
+  const getAuthHeaders = () => ({
+    "auth-token": localStorage.getItem("token"),
+  });
+
   const fetchSales = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/sale/all", {
-        headers: {
-          "auth-token": localStorage.getItem("token"),
-        },
+      const res = await fetch(`${API_BASE}/api/sale/all`, {
+        headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (data.success) {
         setSales(data.sales);
       }
     } catch (err) {
-      console.error("Failed to fetch sales");
+      console.error("Failed to fetch sales:", err);
     }
   };
 
   const fetchMedicines = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/medicine/all", {
-        headers: {
-          "auth-token": localStorage.getItem("token"),
-        },
+      const res = await fetch(`${API_BASE}/api/medicine/all`, {
+        headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (data.success) {
         setMedicines(data.medicines);
       }
     } catch (err) {
-      console.error("Failed to fetch medicines");
+      console.error("Failed to fetch medicines:", err);
     }
   };
 
   const fetchStockEntries = async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/stock-entry/all", {
-        headers: {
-          "auth-token": localStorage.getItem("token"),
-        },
+      const res = await fetch(`${API_BASE}/api/stock-entry/all`, {
+        headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (data.success) {
         setStockEntries(data.entries || []);
       }
     } catch (err) {
-      console.error("Failed to fetch stock entries");
+      console.error("Failed to fetch stock entries:", err);
     }
   };
 
@@ -78,17 +78,15 @@ const Header = () => {
       .map((sale) => sale.customerName.trim().toLowerCase())
   ).size;
 
-  // Calculate profit: sale - cost
+  // 🔹 Calculate profit: sale - cost
   const dailyProfit = todaysSales.reduce((profit, sale) => {
     if (!Array.isArray(sale.items)) return profit;
 
     for (const item of sale.items) {
-      // ✅ Get medicine ID from either object or direct ID
       const itemMedicineId =
         typeof item.medicine === "object"
           ? item.medicine?._id || item.medicine?.$oid
           : item.medicine;
-
 
       const medicine = medicines.find((m) => m._id === itemMedicineId);
 
@@ -98,13 +96,12 @@ const Header = () => {
       }
 
       const barcode = medicine.barcode?.trim();
-      console.log("✅ Found medicine:", medicine.brandName, "| Barcode:", barcode);
 
-      // ✅ Find matching stock entries by barcode (before or on sale date)
       const matchingStockEntries = stockEntries
-        .filter((entry) =>
-          entry.barcode?.trim() === barcode &&
-          new Date(entry.createdAt) <= new Date(sale.date)
+        .filter(
+          (entry) =>
+            entry.barcode?.trim() === barcode &&
+            new Date(entry.createdAt) <= new Date(sale.date)
         )
         .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
@@ -119,19 +116,11 @@ const Header = () => {
       const salePrice = item.price ?? medicine.salePrice ?? 0;
 
       const itemProfit = (salePrice - costPrice) * item.quantity;
-
-      // console.log(
-      //   `💰 Profit for ${medicine.brandName}: (${salePrice} - ${costPrice}) * ${item.quantity} = ${itemProfit}`
-      // );
-
       profit += itemProfit;
     }
 
     return profit;
   }, 0);
-
-  // console.log("🔥 Final Daily Profit:", dailyProfit);
-
 
   return (
     <div className="header bg-gradient-info pb-8 pt-0 pt-md-5">
