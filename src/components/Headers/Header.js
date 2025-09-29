@@ -128,6 +128,7 @@ const Header = () => {
         <div className="header-body">
           <Row className="mt-5 align-items-stretch">
             <StatCard
+              
               title="Daily Sales"
               icon="fas fa-chart-bar"
               color="danger"
@@ -159,7 +160,7 @@ const Header = () => {
 };
 
 const StatCard = ({ title, icon, color, value }) => (
-  <Col lg="6" xl="3">
+  <Col lg="6" xl="3" className="mt-4">
     <Card className="card-stats mb-4 mb-xl-0 h-100">
       <CardBody className="d-flex flex-column justify-content-between h-100">
         <Row>
