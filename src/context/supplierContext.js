@@ -2,28 +2,32 @@ import { createContext, useState, useEffect, useCallback } from "react";
 
 const SupplierContext = createContext();
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
 const SupplierProvider = ({ children }) => {
   const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // ✅ Auth headers
-  const getAuthHeaders = useCallback(() => ({
-    "Content-Type": "application/json",
-    "auth-token": localStorage.getItem("token"),
-  }), []);
+  const getAuthHeaders = useCallback(
+    () => ({
+      "Content-Type": "application/json",
+      "auth-token": localStorage.getItem("token"),
+    }),
+    []
+  );
 
   // ✅ Fetch suppliers
   const fetchSuppliers = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/suppliers", {
+      const res = await fetch(`${backendUrl}/api/suppliers`, {
         headers: getAuthHeaders(),
       });
       const data = await res.json();
       if (data.success) {
         setSuppliers(data.suppliers || []);
         console.log("Supplier fetch response:", data);
-
       } else {
         console.error("Fetch suppliers error:", data.message || data.error);
       }
@@ -38,7 +42,7 @@ const SupplierProvider = ({ children }) => {
   const addSupplier = async (supplierData) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/suppliers/add", {
+      const res = await fetch(`${backendUrl}/api/suppliers/add`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify(supplierData),
@@ -62,7 +66,7 @@ const SupplierProvider = ({ children }) => {
   // ✅ Delete supplier
   const deleteSupplier = async (id) => {
     try {
-      const res = await fetch(`/api/suppliers/${id}`, {
+      const res = await fetch(`${backendUrl}/api/suppliers/${id}`, {
         method: "DELETE",
         headers: getAuthHeaders(),
       });
@@ -82,7 +86,7 @@ const SupplierProvider = ({ children }) => {
   // ✅ Update supplier
   const updateSupplier = async (id, updatedData) => {
     try {
-      const res = await fetch(`/api/suppliers/${id}`, {
+      const res = await fetch(`${backendUrl}/api/suppliers/${id}`, {
         method: "PUT",
         headers: getAuthHeaders(),
         body: JSON.stringify(updatedData),

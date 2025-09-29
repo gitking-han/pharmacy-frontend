@@ -2,6 +2,8 @@ import React, { createContext, useState, useEffect } from "react";
 
 export const ProfileContext = createContext();
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
 export const ProfileProvider = ({ children }) => {
   const [profile, setProfile] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -13,11 +15,11 @@ export const ProfileProvider = ({ children }) => {
   });
 
   // Fetch the logged-in user's profile
-  const fetchProfile = async () => { 
+  const fetchProfile = async () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch("/api/profile/me", {
+      const res = await fetch(`${backendUrl}/api/profile/me`, {
         method: "GET",
         headers: getAuthHeaders(),
       });
@@ -36,7 +38,7 @@ export const ProfileProvider = ({ children }) => {
   const saveProfile = async (data) => {
     try {
       setError(null);
-      const res = await fetch("/api/profile", {
+      const res = await fetch(`${backendUrl}/api/profile`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify(data),
@@ -55,7 +57,9 @@ export const ProfileProvider = ({ children }) => {
   }, []);
 
   return (
-    <ProfileContext.Provider value={{ profile, loading, error, fetchProfile, saveProfile }}>
+    <ProfileContext.Provider
+      value={{ profile, loading, error, fetchProfile, saveProfile }}
+    >
       {children}
     </ProfileContext.Provider>
   );

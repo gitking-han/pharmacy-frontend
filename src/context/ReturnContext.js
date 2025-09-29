@@ -1,8 +1,9 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 
 const ReturnContext = createContext();
-
 export const useReturn = () => useContext(ReturnContext);
+
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
 
 export const ReturnProvider = ({ children }) => {
   const [returns, setReturns] = useState([]);
@@ -10,7 +11,7 @@ export const ReturnProvider = ({ children }) => {
   // 🔄 Fetch all returns from backend
   const fetchReturns = async () => {
     try {
-      const res = await fetch("/api/return/all");
+      const res = await fetch(`${backendUrl}/api/return/all`);
       const data = await res.json();
       setReturns(data);
     } catch (error) {
@@ -21,7 +22,7 @@ export const ReturnProvider = ({ children }) => {
   // ➕ Add return (must include stockEntryId)
   const addReturn = async (returnData) => {
     try {
-      const res = await fetch("/api/return/add", {
+      const res = await fetch(`${backendUrl}/api/return/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(returnData),
@@ -40,7 +41,9 @@ export const ReturnProvider = ({ children }) => {
   // 🗑️ Delete return
   const deleteReturn = async (id) => {
     try {
-      const res = await fetch(`/api/return/delete/${id}`, { method: "DELETE" });
+      const res = await fetch(`${backendUrl}/api/return/delete/${id}`, {
+        method: "DELETE",
+      });
       if (res.ok) {
         setReturns((prev) => prev.filter((ret) => ret._id !== id));
       } else {
@@ -55,7 +58,7 @@ export const ReturnProvider = ({ children }) => {
   // ✏️ Update return (also supports updating stock)
   const updateReturn = async (id, updatedData) => {
     try {
-      const res = await fetch(`/api/return/update/${id}`, {
+      const res = await fetch(`${backendUrl}/api/return/update/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(updatedData),

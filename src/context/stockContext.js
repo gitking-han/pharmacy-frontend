@@ -2,21 +2,26 @@ import { createContext, useState, useCallback, useEffect } from "react";
 
 const StockContext = createContext();
 
+const backendUrl = process.env.REACT_APP_BACKEND_URL || "http://localhost:5000";
+
 const StockProvider = ({ children }) => {
   const [stockEntries, setStockEntries] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // ✅ Headers with auth
-  const getAuthHeaders = useCallback(() => ({
-    "Content-Type": "application/json",
-    "auth-token": localStorage.getItem("token"),
-  }), []);
+  const getAuthHeaders = useCallback(
+    () => ({
+      "Content-Type": "application/json",
+      "auth-token": localStorage.getItem("token"),
+    }),
+    []
+  );
 
   // ✅ Fetch all stock entries
   const fetchStockEntries = async () => {
     setLoading(true);
     try {
-      const res = await fetch("/api/stock-entry/all", {
+      const res = await fetch(`${backendUrl}/api/stock-entry/all`, {
         headers: getAuthHeaders(),
       });
 
@@ -38,7 +43,7 @@ const StockProvider = ({ children }) => {
   const addStockEntry = async (entryData) => {
     setLoading(true);
     try {
-      const res = await fetch("/api/stock-entry/add", {
+      const res = await fetch(`${backendUrl}/api/stock-entry/add`, {
         method: "POST",
         headers: getAuthHeaders(),
         body: JSON.stringify(entryData),
@@ -52,7 +57,10 @@ const StockProvider = ({ children }) => {
         }
         return { success: true, message: data.message || "Stock entry added" };
       } else {
-        return { success: false, message: data.message || "Failed to add stock entry" };
+        return {
+          success: false,
+          message: data.message || "Failed to add stock entry",
+        };
       }
     } catch (error) {
       return { success: false, message: "Network error while adding stock" };
@@ -64,7 +72,7 @@ const StockProvider = ({ children }) => {
   // ✅ Delete stock entry
   const deleteStockEntry = async (id) => {
     try {
-      const res = await fetch(`/api/stock-entry/delete/${id}`, {
+      const res = await fetch(`${backendUrl}/api/stock-entry/delete/${id}`, {
         method: "DELETE",
         headers: {
           "auth-token": localStorage.getItem("token"),
@@ -87,7 +95,7 @@ const StockProvider = ({ children }) => {
   // ✅ Update stock entry
   const updateStockEntry = async (id, updatedData) => {
     try {
-      const res = await fetch(`/api/stock-entry/update/${id}`, {
+      const res = await fetch(`${backendUrl}/api/stock-entry/update/${id}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
