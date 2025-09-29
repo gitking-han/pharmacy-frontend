@@ -48,9 +48,9 @@ const Sidebar = (props) => {
       };
 
       return (
-        <NavItem key={key} style={{marginTop: "10px"}}>
+        <NavItem key={key} style={{ marginTop: "10px" }}>
           <NavLink
-            
+
             to={shouldDisable ? "#" : prop.layout + prop.path}
             tag={NavLinkRRD}
             onClick={handleNavClick}
@@ -102,12 +102,22 @@ const Sidebar = (props) => {
             className="d-flex align-items-center pt-2 ps-3"
             {...navbarBrandProps}
           >
+            {/* Small devices */}
             <img
               src={PharMAn}
               alt="PharMan Logo"
-              className="img-fluid"
-              style={{ maxHeight: "200px", height: "auto", width: "auto" }}
+              className="img-fluid d-sm-none mx-auto"
+              style={{ maxHeight: "70px" }}
             />
+
+            {/* Medium and up */}
+            <img
+              src={PharMAn}
+              alt="PharMan Logo"
+              className="img-fluid d-none d-sm-block mx-auto"
+              style={{ maxHeight: "200px" }}
+            />
+
           </NavbarBrand>
         ) : null}
 
